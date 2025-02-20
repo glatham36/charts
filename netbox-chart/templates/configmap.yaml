@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: netbox-config
+data:
+  ALLOWED_HOSTS: "*"
+  PLUGINS: "{{ join "," .Values.plugins.list }}"
+  PLUGINS_CONFIG: "{{ .Values.plugins.config | toJson }}"
+  DB_HOST: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.host }}{{ else }}{{ .Values.postgresql.host }}{{ end }}"
+  DB_PORT: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.port }}{{ else }}5432{{ end }}"
+  DB_NAME: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.database }}{{ else }}{{ .Values.postgresql.database }}{{ end }}"
+  DB_USER: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.username }}{{ else }}{{ .Values.postgresql.username }}{{ end }}"

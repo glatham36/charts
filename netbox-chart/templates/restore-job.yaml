@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: netbox-db-restore
+spec:
+  template:
+    spec:
+      containers:
+        - name: restore
+          image: postgres:15
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              export PGPASSWORD=$(cat /secrets/db-password)
+              gunzip < /backup/{{ .Values.restore.backupFile }} | psql -h {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.host }}{{ else }}{{ .Values.postgresql.host }}{{ end }} \
+                                                          -U {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.username }}{{ else }}{{ .Values.postgresql.username }}{{ end }} \
+                                                          -d {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.database }}{{ else }}{{ .Values.postgresql.database }}{{ end }}
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            - name: db-secret
+              mountPath: /secrets
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: netbox-backup-pvc
+        - name: db-secret
+          secret:
+            secretName: netbox-secret

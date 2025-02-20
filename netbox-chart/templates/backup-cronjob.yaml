@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: netbox-db-backup
+spec:
+  schedule: "{{ .Values.backup.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: postgres:15
+              command:
+                - "/bin/sh"
+                - "-c"
+                - |
+                  mkdir -p /backup
+                  export PGPASSWORD=$(cat /secrets/db-password)
+                  pg_dump -h {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.host }}{{ else }}{{ .Values.postgresql.host }}{{ end }} \
+                          -U {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.username }}{{ else }}{{ .Values.postgresql.username }}{{ end }} \
+                          -d {{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.database }}{{ else }}{{ .Values.postgresql.database }}{{ end }} \
+                          | gzip > /backup/db-$(date +\%F-\%H\%M).sql.gz
+                  
+                  # Remove old backups
+                  find /backup -type f -mtime +{{ .Values.backup.retentionDays }} -delete
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+                - name: db-secret
+                  mountPath: /secrets
+                  readOnly: true
+          restartPolicy: OnFailure
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: netbox-backup-pvc
+            - name: db-secret
+              secret:
+                secretName: netbox-secret

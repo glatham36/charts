@@ -1,0 +1,116 @@
+questions:
+  - variable: netbox.replicaCount
+    label: "Number of Replicas"
+    description: "Set the number of NetBox replicas to run."
+    type: int
+    required: true
+    default: 1
+
+  - variable: netbox.image.repository
+    label: "NetBox Image Repository"
+    description: "Specify the container image repository for NetBox."
+    type: string
+    required: true
+    default: "netboxcommunity/netbox"
+
+  - variable: netbox.image.tag
+    label: "NetBox Image Tag"
+    description: "Set the container image tag for NetBox."
+    type: string
+    required: true
+    default: "v3.6.2"
+
+  - variable: netbox.service.type
+    label: "Service Type"
+    description: "Choose the Kubernetes service type for NetBox."
+    type: enum
+    options:
+      - ClusterIP
+      - NodePort
+      - LoadBalancer
+    required: true
+    default: "ClusterIP"
+
+  - variable: netbox.ingress.enabled
+    label: "Enable Ingress"
+    description: "Enable or disable Ingress for NetBox."
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.ingress.host
+    label: "Ingress Hostname"
+    description: "Set the hostname for NetBox ingress."
+    type: string
+    required: false
+    default: "netbox.local"
+
+  - variable: netbox.postgresql.external.enabled
+    label: "Use External Database"
+    description: "Enable this to use an external PostgreSQL database instead of an internal one."
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.postgresql.external.host
+    label: "External PostgreSQL Host"
+    description: "Hostname or IP of the external PostgreSQL database."
+    type: string
+    required: false
+    default: ""
+
+  - variable: netbox.postgresql.external.database
+    label: "External PostgreSQL Database Name"
+    description: "Name of the database for NetBox in the external PostgreSQL instance."
+    type: string
+    required: false
+    default: "netbox"
+
+  - variable: netbox.postgresql.external.username
+    label: "External PostgreSQL Username"
+    description: "Username for authenticating to the external PostgreSQL database."
+    type: string
+    required: false
+    default: "netbox"
+
+  - variable: netbox.postgresql.external.password
+    label: "External PostgreSQL Password"
+    description: "Password for authenticating to the external PostgreSQL database."
+    type: password
+    required: false
+    default: ""
+
+  - variable: netbox.plugins.list
+    label: "NetBox Plugins"
+    description: "List of NetBox plugins to enable."
+    type: array[string]
+    required: false
+    default: []
+
+  - variable: netbox.backup.enabled
+    label: "Enable Database Backups"
+    description: "Enable or disable automatic database backups."
+    type: boolean
+    required: true
+    default: true
+
+  - variable: netbox.backup.schedule
+    label: "Backup Schedule"
+    description: "Cron schedule for database backups."
+    type: string
+    required: true
+    default: "0 2 * * *"
+
+  - variable: netbox.restore.enabled
+    label: "Enable Database Restore"
+    description: "Enable or disable database restore jobs."
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.restore.backupFile
+    label: "Restore Backup File"
+    description: "Specify the backup file to restore."
+    type: string
+    required: false
+    default: "latest.sql.gz"

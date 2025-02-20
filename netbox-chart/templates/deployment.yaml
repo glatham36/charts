@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbox
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: netbox
+  template:
+    metadata:
+      labels:
+        app: netbox
+    spec:
+      containers:
+        - name: netbox
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.host }}{{ else }}{{ .Values.postgresql.host }}{{ end }}"
+            - name: DB_PORT
+              value: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.port }}{{ else }}5432{{ end }}"
+            - name: DB_NAME
+              value: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.database }}{{ else }}{{ .Values.postgresql.database }}{{ end }}"
+            - name: DB_USER
+              value: "{{ if .Values.postgresql.external.enabled }}{{ .Values.postgresql.external.username }}{{ else }}{{ .Values.postgresql.username }}{{ end }}"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbox-secret
+                  key: db_password
+            - name: REDIS_HOST
+              value: "{{ if .Values.redis.enabled }}redis-master{{ else }}localhost{{ end }}"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: PLUGINS
+              value: "{{ join "," .Values.plugins.list }}"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: netbox-data
+              mountPath: /opt/netbox/netbox/media
+          command: ["/bin/sh", "-c"]
+          args:
+            - echo "Configuring NetBox Plugins...";
+              echo "PLUGINS = ['{{ join "','" .Values.plugins.list }}']" >> /etc/netbox/configuration.py;
+              echo "PLUGINS_CONFIG = {{ .Values.plugins.config | toJson }}" >> /etc/netbox/configuration.py;
+              python3 /opt/netbox/netbox/manage.py migrate;
+              python3 /opt/netbox/netbox/manage.py collectstatic --no-input;
+              python3 /opt/netbox/netbox/manage.py runserver 0.0.0.0:8000;
+      volumes:
+        - name: netbox-data
+          persistentVolumeClaim:
+            claimName: netbox-pvc
