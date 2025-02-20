@@ -18,35 +18,53 @@ ingress:
           pathType: ImplementationSpecific
 
 postgresql:
+  enabled: false  # Disable internal PostgreSQL to use an external DB
+
+externalDatabase:
   enabled: true
-  auth:
-    postgresPassword: "netboxpassword"
-    username: "netbox"
-    password: "netboxpassword"
-    database: "netbox"
+  host: "external-db-host"
+  port: 5432
+  database: "netbox"
+  username: "netbox"
+  password: "external-db-password"
 
 redis:
   enabled: true
-  architecture: standalone
+  architecture: replication
   auth:
     enabled: false
+  replicaCount: 3
 
 persistence:
   enabled: true
   size: 10Gi
 
-config:
-  plugins:
-    enabled: true
-    list:
-      - netbox-plugin-example
-      - netbox-plugin-custom
-    settings:
-      netbox-plugin-example:
-        setting1: "value1"
-        setting2: "value2"
-      netbox-plugin-custom:
-        customOption: "true"
+plugins:
+  enabled: true
+  list:
+    - netbox_attachments
+    - netbox_topology_views
+
+pluginsConfig:
+  netbox_attachments:
+    apps:
+      - dcim
+      - ipam
+      - circuits
+      - tenancy
+      - virtualization
+      - wireless
+      - inventory_monitor
+    display_default: right_page
+    display_setting:
+      dcim.device: full_width_page
+      dcim.devicerole: full_width_page
+      inventory_monitor.probe: additional_tab
+      ipam.vlan: left_page
+  netbox_topology_views:
+    allow_coordinates_saving: true
+    always_save_coordinates: true
+    static_image_directory: netbox_topology_views/img
 
 backup:
   enabled: true
