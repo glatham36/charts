@@ -1,0 +1,67 @@
+questions:
+  - variable: netbox.replicaCount
+    label: "Number of Replicas"
+    description: "Set the number of NetBox replicas to run."
+    type: int
+    required: true
+    default: 2
+
+  - variable: netbox.image.repository
+    label: "NetBox Image Repository"
+    description: "Specify the container image repository for NetBox."
+    type: string
+    required: true
+    default: "netboxcommunity/netbox"
+
+  - variable: netbox.image.tag
+    label: "NetBox Image Tag"
+    description: "Set the container image tag for NetBox."
+    type: string
+    required: true
+    default: "v3.6.2"
+
+  - variable: netbox.service.type
+    label: "Service Type"
+    description: "Choose the Kubernetes service type for NetBox."
+    type: enum
+    options:
+      - ClusterIP
+      - NodePort
+      - LoadBalancer
+    required: true
+    default: "ClusterIP"
+
+  - variable: netbox.ingress.enabled
+    label: "Enable Ingress"
+    description: "Enable or disable Ingress for NetBox."
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.postgresql.external.enabled
+    label: "Use External Database"
+    description: "Enable this to use an external PostgreSQL database instead of an internal one."
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.plugins.enabled
+    label: "Enable Plugins"
+    description: "Enable or disable plugins for NetBox."
+    type: boolean
+    required: true
+    default: true
+
+  - variable: netbox.plugins.list
+    label: "NetBox Plugins"
+    description: "List of NetBox plugins to enable."
+    type: array[string]
+    required: false
+    default: []
+
+  - variable: netbox.plugins.settings
+    label: "NetBox Plugin Configurations"
+    description: "Configuration settings for individual NetBox plugins."
+    type: map[string, any]
+    required: false
+    default: {}

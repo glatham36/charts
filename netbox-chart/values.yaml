@@ -1,0 +1,57 @@
+replicaCount: 2
+
+image:
+  repository: netboxcommunity/netbox
+  tag: v3.6.2
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: false
+  hosts:
+    - host: netbox.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "netboxpassword"
+    username: "netbox"
+    password: "netboxpassword"
+    database: "netbox"
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+config:
+  plugins:
+    enabled: true
+    list:
+      - netbox-plugin-example
+      - netbox-plugin-custom
+    settings:
+      netbox-plugin-example:
+        setting1: "value1"
+        setting2: "value2"
+      netbox-plugin-custom:
+        customOption: "true"
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+
+restore:
+  enabled: true
+  backupFile: "latest.sql.gz"
