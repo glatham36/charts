@@ -3,7 +3,7 @@ name: netbox
 description: A Helm chart for deploying NetBox with Redis
 type: application
 version: 1.1.0
-appVersion: "3.6.2"
+appVersion: "4.2.0"
 
 dependencies:
   - name: redis
