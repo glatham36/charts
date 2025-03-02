@@ -1,0 +1,75 @@
+replicaCount: 2
+
+image:
+  repository: netboxcommunity/netbox
+  tag: v3.6.2
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: false
+  hosts:
+    - host: netbox.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+postgresql:
+  enabled: false  # Disable internal PostgreSQL to use an external DB
+
+externalDatabase:
+  enabled: true
+  host: "external-db-host"
+  port: 5432
+  database: "netbox"
+  username: "netbox"
+  password: "external-db-password"
+
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: false
+  replicaCount: 3
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+plugins:
+  enabled: true
+  list:
+    - netbox_attachments
+    - netbox_topology_views
+
+pluginsConfig:
+  netbox_attachments:
+    apps:
+      - dcim
+      - ipam
+      - circuits
+      - tenancy
+      - virtualization
+      - wireless
+      - inventory_monitor
+    display_default: right_page
+    display_setting:
+      dcim.device: full_width_page
+      dcim.devicerole: full_width_page
+      inventory_monitor.probe: additional_tab
+      ipam.vlan: left_page
+  netbox_topology_views:
+    allow_coordinates_saving: true
+    always_save_coordinates: true
+    static_image_directory: netbox_topology_views/img
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+
+restore:
+  enabled: true
+  backupFile: "latest.sql.gz"

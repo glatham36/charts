@@ -1,0 +1,64 @@
+questions:
+  - variable: netbox.replicaCount
+    label: "Number of Replicas"
+    type: int
+    required: true
+    default: 2
+
+  - variable: netbox.image.repository
+    label: "NetBox Image Repository"
+    type: string
+    required: true
+    default: "netboxcommunity/netbox"
+
+  - variable: netbox.image.tag
+    label: "NetBox Image Tag"
+    type: string
+    required: true
+    default: "v3.6.2"
+
+  - variable: netbox.service.type
+    label: "Service Type"
+    type: enum
+    options:
+      - ClusterIP
+      - NodePort
+      - LoadBalancer
+    required: true
+    default: "ClusterIP"
+
+  - variable: netbox.ingress.enabled
+    label: "Enable Ingress"
+    type: boolean
+    required: true
+    default: false
+
+  - variable: netbox.externalDatabase.enabled
+    label: "Use External Database"
+    type: boolean
+    required: true
+    default: true
+
+  - variable: netbox.externalDatabase.host
+    label: "External Database Host"
+    type: string
+    required: false
+    default: ""
+
+  - variable: netbox.plugins.enabled
+    label: "Enable Plugins"
+    type: boolean
+    required: true
+    default: true
+
+  - variable: netbox.plugins.list
+    label: "NetBox Plugins"
+    type: array[string]
+    required: false
+    default: []
+
+  - variable: netbox.pluginsConfig
+    label: "NetBox Plugin Configurations"
+    type: map[string, any]
+    required: false
+    default: {}
